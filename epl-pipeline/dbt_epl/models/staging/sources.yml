@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw EPL match data ingested from CSV and mock generator"
+    schema: public
+    tables:
+      - name: raw_matches
+        description: "Raw match records with all in-game statistics"
+        columns:
+          - name: id
+            description: "Auto-incrementing primary key"
+          - name: season
+            description: "Season identifier (e.g. 2023/24)"
+          - name: match_date
+            description: "Date the match was played"
+          - name: home_team
+            description: "Home team name"
+          - name: away_team
+            description: "Away team name"
+          - name: source
+            description: "Data source: csv or mock"
+          - name: ingested_at
+            description: "Timestamp when the row was ingested"

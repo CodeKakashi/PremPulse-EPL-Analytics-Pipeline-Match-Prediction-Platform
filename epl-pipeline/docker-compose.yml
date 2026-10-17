@@ -1,0 +1,58 @@
+services:
+  # ── PostgreSQL Database ──────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: epl_pipeline
+      POSTGRES_USER: epl_user
+      POSTGRES_PASSWORD: epl_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U epl_user -d epl_pipeline"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Python Ingestion Service ─────────────────────────────
+  ingestion:
+    build: ./ingestion
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://epl_user:epl_pass@postgres:5432/epl_pipeline
+    volumes:
+      - ../epl_final.csv:/app/data/epl_final.csv:ro
+    restart: unless-stopped
+
+  # ── dbt Transformation Service ───────────────────────────
+  dbt:
+    build: ./dbt_epl
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: epl_user
+      POSTGRES_PASSWORD: epl_pass
+      POSTGRES_DB: epl_pipeline
+    restart: "no"
+
+  # ── Next.js Dashboard ───────────────────────────────────
+  dashboard:
+    build: ./dashboard
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://epl_user:epl_pass@postgres:5432/epl_pipeline
+    restart: unless-stopped
+
+volumes:
+  pgdata:

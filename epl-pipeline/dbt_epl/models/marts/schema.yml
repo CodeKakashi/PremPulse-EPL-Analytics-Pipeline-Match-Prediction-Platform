@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: epl_features
+    description: "Feature-engineered EPL match data optimized for predictive modelling"
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: total_goals
+        description: "Sum of home and away full-time goals"
+        tests:
+          - not_null
+      - name: shot_accuracy
+        description: "Ratio of total shots on target to total shots"
+      - name: home_win
+        description: "Binary: 1 if home team won, 0 otherwise"
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: result_changed
+        description: "Binary: 1 if the result changed between half-time and full-time"
+        tests:
+          - accepted_values:
+              values: [0, 1]

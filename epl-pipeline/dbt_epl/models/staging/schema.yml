@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_matches
+    description: "Cleaned and deduplicated EPL match data"
+    columns:
+      - name: id
+        tests:
+          - not_null
+      - name: match_date
+        tests:
+          - not_null
+      - name: home_team
+        tests:
+          - not_null
+      - name: ft_result
+        tests:
+          - accepted_values:
+              values: ['H', 'D', 'A']
